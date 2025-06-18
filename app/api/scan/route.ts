@@ -6,9 +6,37 @@ interface ScanRequest {
   token: string;
 }
 
+interface ScanResponse {
+  project: {
+    name: string;
+    description: string;
+    web_url: string;
+  };
+  stats: {
+    totalFiles: number;
+    scannedFiles: number;
+    vulnerabilities: number;
+    critical: number;
+    high: number;
+    medium: number;
+    low: number;
+  };
+  vulnerabilities: Array<{
+    id: number;
+    title: string;
+    severity: string;
+    type: string;
+    file: string;
+    line: number;
+    description: string;
+    impact: string;
+  }>;
+}
+
 export async function POST(request: Request) {
   try {
-    const { projectPath, token }: ScanRequest = await request.json();
+    const body = await request.json() as ScanRequest;
+    const { projectPath, token } = body;
 
     if (!projectPath || !token) {
       return NextResponse.json(
@@ -46,11 +74,13 @@ export async function POST(request: Request) {
       low: vulnerabilities.filter(v => v.severity === 'Low').length,
     };
 
-    return NextResponse.json({
+    const result: ScanResponse = {
       project,
       stats,
       vulnerabilities,
-    });
+    };
+
+    return NextResponse.json(result);
 
   } catch (error) {
     console.error('Scan error:', error);

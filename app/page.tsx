@@ -30,7 +30,11 @@ interface ScanStats {
 }
 
 interface ScanResults {
-  project: any
+  project: {
+    name: string
+    description: string
+    web_url: string
+  }
   stats: ScanStats
   vulnerabilities: Vulnerability[]
 }
